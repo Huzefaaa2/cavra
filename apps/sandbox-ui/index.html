@@ -50,12 +50,14 @@
       </button>
 
       <nav class="top-actions" aria-label="Primary links">
-        <a href="#dashboard" data-route-link="dashboard">Overview</a>
+        <a href="#dashboard" data-route-link="dashboard">Dashboard</a>
         <a href="#first-run-setup" data-route-link="first-run-setup">Setup</a>
+        <a href="#policy-engine" data-route-link="policy-engine">Policies</a>
+        <a href="#agents-mcp" data-route-link="agents-mcp">Agents</a>
+        <a href="#approvals" data-route-link="approvals">Approvals</a>
         <a href="#ai-posture" data-route-link="ai-posture">AISPM</a>
-        <a href="#architecture" data-route-link="architecture">Architecture</a>
-        <a href="#enterprise-trial" data-route-link="enterprise-trial">Trial</a>
-        <a href="#documentation" data-route-link="documentation">Docs</a>
+        <a href="#reports" data-route-link="reports">Reports</a>
+        <a href="#documentation" data-route-link="documentation">Help</a>
         <a href="https://github.com/Huzefaaa2/cavra" target="_blank" rel="noreferrer">GitHub</a>
       </nav>
 
@@ -83,6 +85,73 @@
 
       <main class="portal-main" id="mainContent" tabindex="-1">
         <section class="page-panel is-active" id="dashboard" data-title="Overview">
+          <section class="operator-dashboard" aria-label="CAVRA operator dashboard">
+            <div class="operator-dashboard-header">
+              <div>
+                <p class="eyebrow">Operator console</p>
+                <h1>CAVRA runtime control center.</h1>
+                <p>
+                  Configure the local authority layer, monitor recent decisions,
+                  review approvals, verify evidence, and track AISPM posture from
+                  live API state when the backend is connected.
+                </p>
+              </div>
+              <div class="operator-dashboard-actions">
+                <button id="refreshOperatorDashboard" class="primary-action" type="button">Refresh State</button>
+                <a href="#first-run-setup" data-route-link="first-run-setup">Open Setup</a>
+              </div>
+            </div>
+
+            <div id="operatorStatusStrip" class="operator-status-strip" aria-live="polite"></div>
+
+            <section id="operatorEmptyState" class="operator-empty-state" hidden>
+              <div>
+                <p class="eyebrow">Setup required</p>
+                <h2>Start with safe defaults before connecting AI agents.</h2>
+                <p>
+                  The backend is reachable, but setup is not complete. Create the
+                  default workspace, generate demo fixtures, validate policy
+                  decisions, and seed AISPM activity.
+                </p>
+              </div>
+              <a class="primary-action" href="#first-run-setup" data-route-link="first-run-setup">Start Setup Wizard</a>
+            </section>
+
+            <section id="operatorConfiguredState" class="operator-configured-state" hidden>
+              <div id="operatorMetricCards" class="operator-metric-grid"></div>
+
+              <div class="operator-workspace-grid">
+                <article class="operator-panel">
+                  <div class="operator-panel-heading">
+                    <h2>Recent Runtime Decisions</h2>
+                    <span id="recentDecisionStatus" class="state-chip">Loading</span>
+                  </div>
+                  <div id="recentDecisionTable" class="operator-table-shell"></div>
+                </article>
+
+                <article class="operator-panel">
+                  <div class="operator-panel-heading">
+                    <h2>Connector And Trust Health</h2>
+                    <span id="connectorHealthStatus" class="state-chip">Loading</span>
+                  </div>
+                  <div id="connectorHealthCards" class="connector-health-grid"></div>
+                </article>
+              </div>
+            </section>
+
+            <section id="operatorOfflineState" class="operator-empty-state" hidden>
+              <div>
+                <p class="eyebrow">API disconnected</p>
+                <h2>Start the CAVRA API or configure the UI API base.</h2>
+                <p id="operatorOfflineMessage">
+                  The console can still show public reference content, but live
+                  dashboard widgets require the local FastAPI backend.
+                </p>
+              </div>
+              <a class="primary-action" href="#first-run-setup" data-route-link="first-run-setup">Open Setup Help</a>
+            </section>
+          </section>
+
           <section class="hero product-hero" aria-label="CAVRA product introduction">
             <div class="hero-copy">
               <p class="eyebrow">Before the agent acts, CAVRA decides.</p>
@@ -409,6 +478,53 @@
 
           <div id="aispmOverviewCards" class="posture-overview-grid"></div>
 
+          <section class="operator-panel aispm-live-workstation">
+            <div class="operator-panel-heading">
+              <div>
+                <p class="eyebrow">Live posture workstation</p>
+                <h2>Runtime evidence becomes AI security posture.</h2>
+                <p>
+                  Review posture score, findings, agent drift, evidence freshness,
+                  and recent decision signals from the connected CAVRA API.
+                </p>
+              </div>
+              <button type="button" data-live-refresh="aispm">Refresh Posture</button>
+            </div>
+            <div id="aispmLiveStatusStrip" class="operator-status-strip"></div>
+            <div id="aispmLiveMetricCards" class="operator-metric-grid aispm-live-metrics"></div>
+            <div class="aispm-workstation-grid">
+              <article class="operator-panel aispm-findings-panel">
+                <div class="operator-panel-heading">
+                  <h2>Open Findings</h2>
+                  <span id="aispmFindingsStatus" class="state-chip neutral">pending</span>
+                </div>
+                <div id="aispmFindingsTable" class="operator-table-shell"></div>
+              </article>
+              <article class="operator-panel aispm-blockers-panel">
+                <div class="operator-panel-heading">
+                  <h2>Closeout Blockers</h2>
+                  <span id="aispmBlockerStatus" class="state-chip neutral">pending</span>
+                </div>
+                <div id="aispmBlockerList" class="aispm-blocker-list"></div>
+              </article>
+              <article class="operator-panel">
+                <div class="operator-panel-heading">
+                  <h2>Agent Risk Register</h2>
+                  <span id="aispmAgentStatus" class="state-chip neutral">pending</span>
+                </div>
+                <div id="aispmAgentRiskTable" class="operator-table-shell"></div>
+              </article>
+              <article class="operator-panel">
+                <div class="operator-panel-heading">
+                  <h2>Recent Posture Timeline</h2>
+                  <span id="aispmTimelineStatus" class="state-chip neutral">pending</span>
+                </div>
+                <div id="aispmTimelineTable" class="operator-table-shell"></div>
+              </article>
+            </div>
+            <div id="aispmFreshnessCards" class="aispm-freshness-grid"></div>
+          </section>
+
           <section class="posture-panel aispm-board-pack-panel">
             <div class="console-header">
               <div>
@@ -487,7 +603,254 @@
             <h1>Deterministic controls for risky AI-agent actions.</h1>
             <p>Example: an agent attempts to modify an IAM admin role. CAVRA evaluates the actor, target, branch, environment, tool trust, and blast radius, then blocks or routes for approval.</p>
           </section>
+          <section class="operator-panel live-policy-panel">
+            <div class="operator-panel-heading">
+              <h2>Active Policy Action Catalog</h2>
+              <button type="button" data-live-refresh="policy">Refresh Catalog</button>
+            </div>
+            <div id="policyCatalogCards" class="policy-catalog-summary-grid"></div>
+            <div class="policy-workbench-toolbar" aria-label="Policy catalog filters">
+              <label>
+                Search
+                <input id="policyCatalogSearch" type="search" placeholder="Find rule, target, section, action">
+              </label>
+              <label>
+                Section
+                <select id="policyCatalogSection">
+                  <option value="">All sections</option>
+                </select>
+              </label>
+              <label>
+                Decision
+                <select id="policyCatalogDecision">
+                  <option value="">All decisions</option>
+                  <option value="block">Block</option>
+                  <option value="require_approval">Require approval</option>
+                  <option value="allow">Allow</option>
+                  <option value="trust">Trust</option>
+                  <option value="observe">Observe</option>
+                </select>
+              </label>
+            </div>
+            <div id="policyCatalogSummary" class="operator-summary-line">Waiting for API state...</div>
+            <div id="policyCatalogTable" class="operator-table-shell"></div>
+          </section>
+          <section class="operator-panel policy-simulator-panel">
+            <div class="operator-panel-heading">
+              <div>
+                <h2>Decision Simulator</h2>
+                <p>Test an action against the active policy pack without changing policy files.</p>
+              </div>
+              <span id="policySimulatorStatus" class="state-chip neutral">idle</span>
+            </div>
+            <form id="policySimulatorForm" class="policy-simulator-form">
+              <label>
+                Action type
+                <select name="action_type">
+                  <option value="execute_command">execute_command</option>
+                  <option value="read_file">read_file</option>
+                  <option value="write_file">write_file</option>
+                  <option value="git_operation">git_operation</option>
+                  <option value="mcp_tool_call">mcp_tool_call</option>
+                </select>
+              </label>
+              <label>
+                Target
+                <input name="target" value="terraform apply -auto-approve">
+              </label>
+              <label>
+                Policy pack
+                <input name="policy_pack" value="cavra-ai-agent-baseline">
+              </label>
+              <button type="submit">Run Simulation</button>
+            </form>
+            <pre id="policySimulatorOutput" class="operator-report-preview">Run a simulation to see the decision, rule, severity, rationale, and evidence reference.</pre>
+          </section>
           <div id="policyExplorer" class="policy-grid"></div>
+        </section>
+
+        <section class="page-panel" id="agents-mcp" data-title="Agents & MCP Trust">
+          <section class="page-hero">
+            <p class="eyebrow">Identity and trust</p>
+            <h1>Govern AI agents and MCP tool surfaces before they act.</h1>
+            <p>
+              Track agent identities, repository scope, MCP server trust, tool classifications,
+              and unknown tool exposure from live registry data when the API is connected.
+            </p>
+          </section>
+          <section class="operator-panel registry-workstation-panel">
+            <div class="operator-panel-heading">
+              <div>
+                <h2>Registry Workstation</h2>
+                <p>Seed local agents, classify MCP server trust, test unknown tool exposure, and export registry audit detail.</p>
+              </div>
+              <div class="operator-heading-actions">
+                <button type="button" id="seedSampleAgents">Seed Sample Agents</button>
+                <button type="button" id="seedSampleMcp">Seed Sample MCP</button>
+                <button type="button" data-live-refresh="agents">Refresh</button>
+              </div>
+            </div>
+            <div class="registry-summary-grid" id="registrySummaryCards"></div>
+            <div class="registry-workstation-grid">
+              <article class="registry-subpanel">
+                <div class="operator-panel-heading">
+                  <div>
+                    <h2>Governed Agents</h2>
+                    <p>Filter agent identities by owner, status, vendor, or risk tier.</p>
+                  </div>
+                  <span id="agentRegistryStatus" class="state-chip neutral">pending</span>
+                </div>
+                <div class="registry-filter-bar">
+                  <label>Search <input id="agentSearch" type="search" placeholder="Find agent, vendor, owner, scope"></label>
+                  <label>Status <select id="agentStatusFilter"><option value="">All statuses</option><option value="active">Active</option><option value="disabled">Disabled</option><option value="retired">Retired</option></select></label>
+                  <label>Risk <select id="agentRiskFilter"><option value="">All risk tiers</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>
+                </div>
+                <div id="agentsTable" class="operator-table-shell"></div>
+              </article>
+
+              <article class="registry-subpanel">
+                <div class="operator-panel-heading">
+                  <div>
+                    <h2>MCP Trust Registry</h2>
+                    <p>Review server trust tier, approval state, capabilities, and allowed tools.</p>
+                  </div>
+                  <span id="mcpRegistryStatus" class="state-chip neutral">pending</span>
+                </div>
+                <div class="registry-filter-bar">
+                  <label>Search <input id="mcpSearch" type="search" placeholder="Find server, owner, tool, capability"></label>
+                  <label>Trust <select id="mcpTrustFilter"><option value="">All trust tiers</option><option value="trusted">Trusted</option><option value="approved">Approved</option><option value="experimental">Experimental</option><option value="blocked">Blocked</option><option value="unknown">Unknown</option></select></label>
+                  <label>Capability <select id="mcpCapabilityFilter"><option value="">All capabilities</option></select></label>
+                </div>
+                <div id="mcpTrustTable" class="operator-table-shell"></div>
+              </article>
+            </div>
+
+            <div class="registry-detail-grid">
+              <aside class="registry-detail-panel">
+                <div class="operator-panel-heading">
+                  <h2>Selected Agent</h2>
+                  <span id="agentDetailStatus" class="state-chip neutral">none</span>
+                </div>
+                <div id="agentDetail" class="registry-detail"></div>
+              </aside>
+              <aside class="registry-detail-panel">
+                <div class="operator-panel-heading">
+                  <h2>Selected MCP Server</h2>
+                  <span id="mcpDetailStatus" class="state-chip neutral">none</span>
+                </div>
+                <div id="mcpDetail" class="registry-detail"></div>
+              </aside>
+              <aside class="registry-detail-panel">
+                <div class="operator-panel-heading">
+                  <h2>MCP Trust Check</h2>
+                  <span id="mcpTrustCheckStatus" class="state-chip neutral">idle</span>
+                </div>
+                <form id="mcpTrustCheckForm" class="registry-test-form">
+                  <label>Server <input name="server" value="unknown-filesystem"></label>
+                  <label>Tool <input name="tool" value="read_file"></label>
+                  <label>Capability <input name="capability" value="filesystem"></label>
+                  <button type="submit">Evaluate Trust</button>
+                </form>
+                <pre id="registryAuditOutput" class="operator-report-preview">Select a registry record or run a trust check to inspect audit output.</pre>
+              </aside>
+            </div>
+          </section>
+          <div class="operator-workspace-grid registry-reference-grid">
+            <article class="operator-panel">
+              <div class="operator-panel-heading">
+                <h2>Agent Capability Profiles</h2>
+                <button type="button" id="loadAgentProfiles">Load Profiles</button>
+              </div>
+              <div id="agentProfilesTable" class="operator-table-shell"></div>
+            </article>
+            <article class="operator-panel">
+              <div class="operator-panel-heading">
+                <h2>MCP Tool Classifications</h2>
+                <button type="button" id="loadMcpClassifications">Load Classifications</button>
+              </div>
+              <div id="mcpClassificationsTable" class="operator-table-shell"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="page-panel" id="approvals" data-title="Approvals">
+          <section class="page-hero">
+            <p class="eyebrow">Approval queue</p>
+            <h1>Review risky actions that should not execute automatically.</h1>
+            <p>
+              CAVRA approval records show pending, approved, denied, expired, and
+              break-glass actions with reason, actor, route, and evidence references.
+            </p>
+          </section>
+          <section class="operator-panel">
+            <div class="operator-panel-heading">
+              <div>
+                <h2>Approval Queue</h2>
+                <p>Filter approval records, select a request, and decide with audit output.</p>
+              </div>
+              <div class="operator-heading-actions">
+                <button type="button" id="seedSampleApproval">Seed Sample Approval</button>
+                <button type="button" data-live-refresh="approvals">Refresh</button>
+              </div>
+            </div>
+            <div class="approval-workbench-toolbar" aria-label="Approval queue filters">
+              <label>
+                Search
+                <input id="approvalSearch" type="search" placeholder="Find approval, actor, group, reason">
+              </label>
+              <label>
+                State
+                <select id="approvalStateFilter">
+                  <option value="">All states</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="denied">Denied</option>
+                  <option value="expired">Expired</option>
+                  <option value="break_glass">Break glass</option>
+                </select>
+              </label>
+              <label>
+                Group
+                <select id="approvalGroupFilter">
+                  <option value="">All groups</option>
+                </select>
+              </label>
+            </div>
+            <div id="approvalSummaryCards" class="approval-summary-grid"></div>
+            <div id="approvalQueueSummary" class="operator-summary-line">Waiting for API state...</div>
+            <div class="approval-workstation-grid">
+              <div id="approvalQueueTable" class="operator-table-shell"></div>
+              <aside class="approval-detail-panel">
+                <div class="operator-panel-heading">
+                  <h2>Selected Request</h2>
+                  <span id="approvalDetailStatus" class="state-chip neutral">none</span>
+                </div>
+                <div id="approvalDetail" class="approval-detail"></div>
+                <form id="approvalDecisionForm" class="approval-decision-form">
+                  <label>
+                    Actor
+                    <input name="actor" value="local-operator">
+                  </label>
+                  <label>
+                    Reason
+                    <textarea name="reason" rows="3">Manual local validation decision.</textarea>
+                  </label>
+                  <label>
+                    External reference
+                    <input name="external_ref" value="manual-test">
+                  </label>
+                  <div class="approval-action-row">
+                    <button type="button" data-approval-action="approve">Approve</button>
+                    <button type="button" data-approval-action="deny">Deny</button>
+                    <button type="button" data-approval-action="expire">Expire</button>
+                    <button type="button" data-approval-action="break-glass">Break Glass</button>
+                    <button type="button" data-approval-action="deliver">Deliver</button>
+                  </div>
+                </form>
+                <pre id="approvalAuditOutput" class="operator-report-preview">Select an approval request to review detail and run an action.</pre>
+              </aside>
+            </div>
+          </section>
         </section>
 
         <section class="page-panel" id="evidence" data-title="Evidence">
@@ -495,6 +858,54 @@
             <p class="eyebrow">Evidence collector</p>
             <h1>Every decision becomes durable review material.</h1>
             <p>Evidence records explain who acted, what was requested, why CAVRA allowed or blocked it, which controls applied, and what an auditor can verify later.</p>
+          </section>
+          <section class="operator-panel">
+            <div class="operator-panel-heading">
+              <div>
+                <h2>Evidence Hub</h2>
+                <p>Search evidence metadata, AISPM evidence references, signatures, and decision correlations.</p>
+              </div>
+              <div class="operator-heading-actions">
+                <button type="button" id="copySelectedEvidence">Copy JSON</button>
+                <button type="button" id="downloadSelectedEvidence">Download JSON</button>
+                <button type="button" data-live-refresh="evidence">Refresh Evidence</button>
+              </div>
+            </div>
+            <div class="evidence-workbench-toolbar" aria-label="Evidence filters">
+              <label>
+                Search
+                <input id="evidenceSearch" type="search" placeholder="Find session, signer, rule, decision, evidence ref">
+              </label>
+              <label>
+                Kind
+                <select id="evidenceKindFilter">
+                  <option value="">All kinds</option>
+                </select>
+              </label>
+              <label>
+                Verification
+                <select id="evidenceVerificationFilter">
+                  <option value="">All verification states</option>
+                  <option value="signed">Signed</option>
+                  <option value="metadata_only">Metadata only</option>
+                  <option value="aispm_reference">AISPM reference</option>
+                  <option value="missing">Missing metadata</option>
+                </select>
+              </label>
+            </div>
+            <div id="evidenceSummaryCards" class="evidence-summary-grid"></div>
+            <div id="evidenceSummaryLine" class="operator-summary-line">Waiting for API state...</div>
+            <div class="evidence-workstation-grid">
+              <div id="evidenceTable" class="operator-table-shell"></div>
+              <aside class="evidence-detail-panel">
+                <div class="operator-panel-heading">
+                  <h2>Evidence Detail</h2>
+                  <span id="evidenceDetailStatus" class="state-chip neutral">none</span>
+                </div>
+                <div id="evidenceDetail" class="evidence-detail"></div>
+                <pre id="evidenceAuditOutput" class="operator-report-preview">Select an evidence record to inspect verification and correlation detail.</pre>
+              </aside>
+            </div>
           </section>
           <div id="evidenceTimeline" class="timeline"></div>
           <pre id="evidencePayload" class="code-panel">Run the public demo to generate a sample evidence packet.</pre>
@@ -547,9 +958,226 @@
         <section class="page-panel" id="integrations" data-title="Integrations">
           <section class="page-hero">
             <p class="eyebrow">Integrations</p>
-            <h1>Ready and planned control surfaces are separated clearly.</h1>
+            <h1>Operate connector readiness, health, and delivery boundaries.</h1>
+            <p>
+              Register source control, CI/CD, SIEM, ITSM, ChatOps, cloud, and security integrations;
+              inspect health state; and validate whether provider-backed delivery is configured.
+            </p>
           </section>
-          <div id="integrationCards" class="integration-grid"></div>
+          <section class="operator-panel integration-workstation-panel">
+            <div class="operator-panel-heading">
+              <div>
+                <h2>Integration Hub</h2>
+                <p>Filter connector records, seed a local reference inventory, and review provider delivery readiness.</p>
+              </div>
+              <div class="operator-heading-actions">
+                <button type="button" id="seedSampleIntegrations">Seed Sample Integrations</button>
+                <button type="button" data-live-refresh="integrations">Refresh</button>
+              </div>
+            </div>
+            <div id="integrationSummaryCards" class="integration-summary-grid"></div>
+            <div class="integration-workbench-toolbar" aria-label="Integration filters">
+              <label>
+                Search
+                <input id="integrationSearch" type="search" placeholder="Find provider, owner, environment, capability">
+              </label>
+              <label>
+                Category
+                <select id="integrationCategoryFilter">
+                  <option value="">All categories</option>
+                  <option value="source_control">Source control</option>
+                  <option value="ci_cd">CI/CD</option>
+                  <option value="siem">SIEM</option>
+                  <option value="itsm">ITSM</option>
+                  <option value="chatops">ChatOps</option>
+                  <option value="identity">Identity</option>
+                  <option value="cloud">Cloud</option>
+                  <option value="storage">Storage</option>
+                  <option value="security">Security</option>
+                  <option value="observability">Observability</option>
+                </select>
+              </label>
+              <label>
+                Status
+                <select id="integrationStatusFilter">
+                  <option value="">All statuses</option>
+                  <option value="planned">Planned</option>
+                  <option value="configured">Configured</option>
+                  <option value="active">Active</option>
+                  <option value="paused">Paused</option>
+                  <option value="disabled">Disabled</option>
+                </select>
+              </label>
+              <label>
+                Health
+                <select id="integrationHealthFilter">
+                  <option value="">All health</option>
+                  <option value="healthy">Healthy</option>
+                  <option value="degraded">Degraded</option>
+                  <option value="failed">Failed</option>
+                  <option value="not_checked">Not checked</option>
+                  <option value="unknown">Unknown</option>
+                </select>
+              </label>
+            </div>
+            <div id="integrationSummaryLine" class="operator-summary-line">Waiting for API state...</div>
+            <div class="integration-workstation-grid">
+              <div id="integrationTable" class="operator-table-shell"></div>
+              <aside class="integration-detail-panel">
+                <div class="operator-panel-heading">
+                  <h2>Selected Integration</h2>
+                  <span id="integrationDetailStatus" class="state-chip neutral">none</span>
+                </div>
+                <div id="integrationDetail" class="integration-detail"></div>
+                <form id="integrationDeliveryTestForm" class="integration-test-form">
+                  <label>
+                    Event type
+                    <input name="event_type" value="cavra.integration.delivery.test">
+                  </label>
+                  <label>
+                    Target provider
+                    <input name="provider" value="all">
+                  </label>
+                  <button type="submit">Test Delivery Boundary</button>
+                </form>
+                <pre id="integrationAuditOutput" class="operator-report-preview">Select an integration or run a delivery test to inspect audit output.</pre>
+              </aside>
+            </div>
+          </section>
+          <section class="operator-workspace-grid integration-dashboard-grid">
+            <article class="operator-panel">
+              <div class="operator-panel-heading">
+                <h2>Connector Delivery Dashboard</h2>
+                <span id="integrationDeliveryStatus" class="state-chip neutral">pending</span>
+              </div>
+              <div id="connectorDeliveryDashboard" class="connector-delivery-dashboard"></div>
+            </article>
+            <article class="operator-panel">
+              <div class="operator-panel-heading">
+                <h2>Configured Provider Boundary</h2>
+                <span id="integrationProviderStatus" class="state-chip neutral">pending</span>
+              </div>
+              <div id="integrationProviderBoundary" class="connector-delivery-dashboard"></div>
+            </article>
+          </section>
+        </section>
+
+        <section class="page-panel" id="reports" data-title="Reports">
+          <section class="page-hero">
+            <p class="eyebrow">Report center</p>
+            <h1>Generate public-safe reports and understand configured delivery boundaries.</h1>
+            <p>
+              Community can generate browser-side Markdown, JSON, and CSV exports.
+              Provider-backed PDF/XLSX rendering, scheduled delivery, recipient
+              governance, and audit evidence require self-hosted configuration or CAVRA Managed.
+            </p>
+          </section>
+          <section class="operator-panel">
+            <div class="report-filter-bar" aria-label="Report filters">
+              <label>Report <select id="reportType"><option>Executive Risk Brief</option><option>Audit Evidence Summary</option><option>Agent Risk Export</option><option>Connector Readiness</option><option>Approval Queue</option></select></label>
+              <label>Range <select id="reportRange"><option>Last 24 hours</option><option>Last 7 days</option><option>Last 30 days</option></select></label>
+              <label>Scope <select id="reportScope"><option>All agents</option><option>Blocked actions</option><option>Approval routed</option></select></label>
+              <label>Format <select id="reportFormat"><option>JSON</option><option>Markdown</option><option>CSV</option></select></label>
+              <button type="button" id="generateReportPreview">Generate Preview</button>
+              <button type="button" id="copyReportPreview">Copy</button>
+              <button type="button" id="downloadReportPreview">Download</button>
+            </div>
+            <div id="reportMetricCards" class="report-summary-grid"></div>
+            <div id="reportCenterLiveSummary" class="operator-summary-line">Report preview uses current AISPM posture when the API is connected.</div>
+            <div id="reportPreviewOutput" class="operator-report-preview"></div>
+            <div id="reportSourceInventory" class="operator-table-shell"></div>
+          </section>
+          <div id="reportsCatalogMirror" class="report-center-grid"></div>
+        </section>
+
+        <section class="page-panel" id="settings" data-title="Settings">
+          <section class="page-hero">
+            <p class="eyebrow">Console settings</p>
+            <h1>Review environment status, provider boundaries, and local console controls.</h1>
+            <p>
+              Settings gives operators one place to confirm API connection, setup state,
+              storage mode, provider delivery boundaries, CORS, local UI preferences,
+              and a shareable diagnostics snapshot.
+            </p>
+          </section>
+          <section class="operator-panel settings-workstation-panel">
+            <div class="operator-panel-heading">
+              <div>
+                <h2>Environment Workstation</h2>
+                <p>Refresh runtime state, inspect setup/config, and export diagnostics for support or manual testing.</p>
+              </div>
+              <div class="operator-heading-actions">
+                <button type="button" id="settingsRefreshState">Refresh API State</button>
+                <button type="button" id="copySettingsDiagnostics">Copy Diagnostics</button>
+                <button type="button" id="downloadSettingsDiagnostics">Download Diagnostics</button>
+              </div>
+            </div>
+            <div id="settingsStatusCards" class="settings-summary-grid"></div>
+            <div class="settings-workstation-grid">
+              <article class="settings-subpanel">
+                <div class="operator-panel-heading">
+                  <h2>API Connection</h2>
+                  <span id="settingsApiStatus" class="state-chip neutral">pending</span>
+                </div>
+                <p>Current API base:</p>
+                <code id="settingsApiBase">not configured</code>
+                <div id="settingsApiDetail" class="settings-detail-list"></div>
+              </article>
+              <article class="settings-subpanel">
+                <div class="operator-panel-heading">
+                  <h2>Local Console State</h2>
+                  <span id="settingsLocalStatus" class="state-chip neutral">local</span>
+                </div>
+                <label class="settings-control-label">
+                  Theme
+                  <select id="settingsThemeSelect">
+                    <option value="sentinel">Sentinel</option>
+                    <option value="executive">Executive</option>
+                    <option value="classic">Classic</option>
+                    <option value="retro">Retro</option>
+                  </select>
+                </label>
+                <div class="settings-button-row">
+                  <button type="button" id="resetSetupPrompt">Show setup prompt</button>
+                  <button type="button" id="expandSidebarSetting">Expand sidebar</button>
+                  <button type="button" id="collapseSidebarSetting">Collapse sidebar</button>
+                  <button type="button" id="resetLocalUiState">Reset local UI state</button>
+                </div>
+              </article>
+            </div>
+            <div class="settings-workstation-grid">
+              <article class="settings-subpanel">
+                <div class="operator-panel-heading">
+                  <h2>Setup Status</h2>
+                  <span id="settingsSetupStatus" class="state-chip neutral">pending</span>
+                </div>
+                <div id="settingsSetupTable" class="operator-table-shell"></div>
+              </article>
+              <article class="settings-subpanel">
+                <div class="operator-panel-heading">
+                  <h2>Provider Boundary</h2>
+                  <span id="settingsProviderStatus" class="state-chip neutral">pending</span>
+                </div>
+                <div id="settingsProviderTable" class="operator-table-shell"></div>
+              </article>
+            </div>
+            <div class="settings-workstation-grid">
+              <article class="settings-subpanel">
+                <div class="operator-panel-heading">
+                  <h2>Storage And Runtime Modes</h2>
+                  <span id="settingsStorageStatus" class="state-chip neutral">pending</span>
+                </div>
+                <div id="settingsStoreTable" class="operator-table-shell"></div>
+              </article>
+              <article class="settings-subpanel">
+                <div class="operator-panel-heading">
+                  <h2>Diagnostics Snapshot</h2>
+                  <span id="settingsDiagnosticsStatus" class="state-chip neutral">ready</span>
+                </div>
+                <pre id="settingsDiagnosticsOutput" class="operator-report-preview">Refresh API state to generate diagnostics.</pre>
+              </article>
+            </div>
+          </section>
         </section>
 
         <section class="page-panel" id="compliance" data-title="Compliance">
@@ -571,9 +1199,31 @@
 
         <section class="page-panel" id="documentation" data-title="Documentation">
           <section class="page-hero">
-            <p class="eyebrow">Documentation</p>
-            <h1>Start with the CAVRA textbook, then run the public sandbox.</h1>
-            <p>The GitHub Wiki e-book is the long-form guide to CAVRA architecture, product paths, CLI, GUI, AISPM, deployment, and operations.</p>
+            <p class="eyebrow">Help center</p>
+            <h1>Use the app workflow first, then open reference material when needed.</h1>
+            <p>
+              The primary navigation is the operator console. Architecture, use cases,
+              role paths, trial information, compliance notes, and roadmap material are
+              kept here as secondary references so they do not interrupt daily operation.
+            </p>
+          </section>
+          <section class="operator-panel help-workflow-panel">
+            <div class="operator-panel-heading">
+              <div>
+                <h2>Application workflow</h2>
+                <p>Follow these screens when installing, configuring, operating, and reviewing CAVRA.</p>
+              </div>
+            </div>
+            <div id="operatorHelpCards" class="help-workflow-grid"></div>
+          </section>
+          <section class="operator-panel reference-workflow-panel">
+            <div class="operator-panel-heading">
+              <div>
+                <h2>Secondary references</h2>
+                <p>Deep links remain available for product context, evaluation planning, and public documentation.</p>
+              </div>
+            </div>
+            <div id="secondaryReferenceCards" class="reference-card-grid"></div>
           </section>
           <div class="docs-layout">
             <nav id="docsNav" class="docs-nav" aria-label="Documentation links"></nav>
@@ -609,7 +1259,20 @@
 
     <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
       <div class="mobile-panel">
-        <button id="closeMobileNav" aria-label="Close navigation">Close</button>
+        <div class="mobile-panel-header">
+          <div>
+            <span class="eyebrow">Operator menu</span>
+            <strong>CAVRA Mobile</strong>
+          </div>
+          <button id="closeMobileNav" aria-label="Close navigation">Close</button>
+        </div>
+        <section class="mobile-operator-actions" aria-label="Mobile operator actions">
+          <button type="button" data-command-action="refresh-all">Refresh State</button>
+          <button type="button" data-command-action="run-setup-validate">Validate Setup</button>
+          <button type="button" data-command-action="seed-approval">Seed Approval</button>
+          <button type="button" data-command-action="generate-report-preview">Generate Report</button>
+          <button type="button" data-command-action="download-settings-diagnostics">Diagnostics</button>
+        </section>
         <nav id="mobileNav"></nav>
         <label class="theme-picker mobile-theme-picker" for="mobileThemeSelect">
           <span>Theme</span>
@@ -624,20 +1287,39 @@
     </div>
 
     <nav class="mobile-bottom" aria-label="Mobile quick actions">
-      <a href="#dashboard" data-route-link="dashboard">Home</a>
-      <a href="#ai-posture" data-route-link="ai-posture">AISPM</a>
+      <a href="#dashboard" data-route-link="dashboard">Dash</a>
+      <a href="#first-run-setup" data-route-link="first-run-setup">Setup</a>
       <button id="mobileSearch">Search</button>
-      <a href="#enterprise-trial" data-route-link="enterprise-trial">Trial</a>
-      <a href="#documentation" data-route-link="documentation">Docs</a>
+      <a href="#approvals" data-route-link="approvals">Approvals</a>
+      <a href="#evidence" data-route-link="evidence">Evidence</a>
+      <a href="#ai-posture" data-route-link="ai-posture">AISPM</a>
     </nav>
 
     <div class="command-palette" id="commandPalette" aria-hidden="true" role="dialog" aria-label="Command palette">
       <div class="command-shell">
         <div class="command-header">
-          <input id="commandSearch" type="search" placeholder="Search pages, controls, diagrams, trial paths" />
+          <input id="commandSearch" type="search" placeholder="Search pages or run actions: refresh, setup, seed, report, export" />
           <button id="closeSearch" aria-label="Close command palette">Close</button>
         </div>
+        <div id="commandStatus" class="command-status" aria-live="polite">
+          Type to find a screen or run an operator action.
+        </div>
         <div id="commandResults" class="command-results"></div>
+      </div>
+    </div>
+
+    <div class="inline-help-drawer" id="inlineHelpDrawer" aria-hidden="true" role="dialog" aria-label="Contextual page guide">
+      <div class="inline-help-panel">
+        <div class="inline-help-header">
+          <div>
+            <span id="inlineHelpKicker" class="eyebrow">Page guide</span>
+            <h2 id="inlineHelpTitle">CAVRA guide</h2>
+          </div>
+          <button id="closeInlineHelp" type="button" aria-label="Close page guide">Close</button>
+        </div>
+        <p id="inlineHelpSummary"></p>
+        <div id="inlineHelpBody" class="inline-help-body"></div>
+        <nav id="inlineHelpLinks" class="inline-help-links" aria-label="Related guidance"></nav>
       </div>
     </div>
 

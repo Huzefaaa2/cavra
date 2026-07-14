@@ -152,7 +152,7 @@ async function validateThemes(page, baseUrl) {
   for (const theme of ["sentinel", "classic", "retro", "executive"]) {
     await page.selectOption("#themeSelect", theme);
     await page.locator(`body[data-theme="${theme}"]`).waitFor({ state: "attached" });
-    await assertReadableAndContained(page, ".top-shell, #dashboard .metric-card");
+    await assertReadableAndContained(page, ".top-shell, #operatorStatusStrip, .operator-dashboard");
   }
 }
 
@@ -163,13 +163,11 @@ async function validateDashboard(page, baseUrl) {
   await page.locator("#dashboard.is-active").waitFor({ state: "visible" });
   await page.selectOption("#themeSelect", "classic");
   await assertVisible(page, [
-    ".hero-product-mark",
-    "#demoMetrics .metric-card",
-    "#communityGaSummary",
-    "#pilotReadinessSummary",
+    ".operator-dashboard",
+    "#operatorStatusStrip",
+    ".operator-empty-state:not([hidden]), .operator-configured-state:not([hidden])",
   ]);
-  await assertReadableAndContained(page, "#dashboard .metric-card, #dashboard .community-ga-card, #dashboard .pilot-readiness-card");
-  await assertNoCardOverlap(page, "#demoMetrics", ".metric-card");
+  await assertReadableAndContained(page, "#operatorStatusStrip, .operator-dashboard");
   return capture(page, "dashboard-desktop-classic.png");
 }
 
@@ -180,6 +178,9 @@ async function validateAispmDesktop(page, baseUrl) {
   await page.locator("#ai-posture.is-active").waitFor({ state: "visible" });
   await page.selectOption("#themeSelect", "sentinel");
   await assertVisible(page, [
+    ".aispm-live-workstation",
+    "#aispmLiveStatusStrip",
+    "#aispmLiveMetricCards .operator-metric-card",
     "#aispmOverviewCards .posture-card",
     "#aispmPilotLaunchBoardPack .board-pack-card",
     "#aispmPilotLaunchBoardPackManifest .board-pack-manifest-card",
@@ -188,6 +189,7 @@ async function validateAispmDesktop(page, baseUrl) {
     "#aispmReportCenter .report-card",
     "#sendAispmReportEmail:disabled",
   ]);
+  await assertReadableAndContained(page, ".aispm-live-workstation, #aispmLiveMetricCards .operator-metric-card");
   await assertReadableAndContained(page, "#ai-posture .board-pack-card, #ai-posture .board-pack-manifest-card, #ai-posture .report-card");
   await assertNoCardOverlap(page, "#aispmPilotLaunchBoardPack", ".board-pack-card");
   await assertNoCardOverlap(page, "#aispmPilotLaunchBoardPackManifest", ".board-pack-manifest-card");
@@ -211,6 +213,8 @@ async function validateAispmMobile(page, baseUrl) {
   await page.locator("#ai-posture.is-active").waitFor({ state: "visible" });
   await assertVisible(page, [
     ".mobile-bottom",
+    ".aispm-live-workstation",
+    "#aispmLiveMetricCards .operator-metric-card",
     "#aispmPilotLaunchBoardPack .board-pack-card",
     "#aispmPilotLaunchBoardPackManifest .board-pack-manifest-card",
     "#aispmReportCenter .report-card",
