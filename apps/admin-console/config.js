@@ -1,0 +1,1 @@
+window.CAVRA_ADMIN_API_BASE = window.CAVRA_ADMIN_API_BASE || "";

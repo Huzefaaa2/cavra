@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CAVRA Admin Console</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="config.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">CAVRA Operations</p>
+        <h1>Admin Console</h1>
+      </div>
+      <div class="api-box">
+        <label for="api-base">API base</label>
+        <input id="api-base" type="url" placeholder="http://127.0.0.1:8000" />
+        <button id="save-api" type="button">Use API</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="disabled-panel" class="notice hidden">
+        <h2>Admin API is disabled</h2>
+        <p>
+          Start the API with <code>CAVRA_ADMIN_ENABLED=true</code>. Docker Compose enables it for local
+          Docker Desktop testing only.
+        </p>
+      </section>
+
+      <section class="summary-grid">
+        <article>
+          <p class="label">Deployment</p>
+          <h2 id="deployment-title">Not connected</h2>
+          <p id="deployment-detail">Connect to the API to load the runtime topology.</p>
+        </article>
+        <article>
+          <p class="label">Readiness</p>
+          <h2 id="readiness-title">Unknown</h2>
+          <p id="readiness-detail">Production readiness gate has not been queried.</p>
+        </article>
+        <article>
+          <p class="label">Stores</p>
+          <h2 id="stores-title">0</h2>
+          <p id="stores-detail">Persistent API stores tracked by CAVRA.</p>
+        </article>
+      </section>
+
+      <section class="toolbar">
+        <button id="refresh" type="button">Refresh Admin State</button>
+        <button id="readiness" type="button">Run Readiness Check</button>
+        <button id="stores" type="button">Load Store Inventory</button>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Policy lifecycle</p>
+            <h2>Upload, validate, plan, and request publish approval</h2>
+          </div>
+        </div>
+        <div class="form-grid">
+          <label>
+            Policy pack YAML or JSON
+            <input id="policy-file" type="file" accept=".yaml,.yml,.json" />
+          </label>
+          <label>
+            Approver group
+            <input id="approver-group" value="Platform Security" />
+          </label>
+          <label>
+            Requested by
+            <input id="requested-by" value="admin-console" />
+          </label>
+        </div>
+        <div class="actions">
+          <button id="policy-upload" type="button">Validate Upload</button>
+          <button id="policy-plan" type="button">Build Publish Plan</button>
+          <button id="policy-request" type="button">Request Approval</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Persistence</p>
+            <h2>Backups and retention</h2>
+          </div>
+        </div>
+        <div class="form-grid">
+          <label>
+            Backup output directory
+            <input id="backup-output" value=".cavra/admin/backups/latest" />
+          </label>
+          <label>
+            Confirm backup run
+            <input id="backup-confirm" placeholder="Type BACKUP to run" />
+          </label>
+          <label>
+            Retention days
+            <input id="retention-days" type="number" min="1" value="2555" />
+          </label>
+          <label>
+            Classification
+            <input id="classification" value="regulated-sdlc" />
+          </label>
+          <label class="checkbox">
+            <input id="legal-hold" type="checkbox" />
+            Legal hold
+          </label>
+        </div>
+        <div class="actions">
+          <button id="backup-plan" type="button">Plan Backup</button>
+          <button id="backup-run" type="button">Run Backup</button>
+          <button id="retention-plan" type="button">Build Retention Plan</button>
+        </div>
+      </section>
+
+      <section class="panel output-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Diagnostics</p>
+            <h2>Latest result</h2>
+          </div>
+        </div>
+        <pre id="output">No admin action has run yet.</pre>
+      </section>
+    </main>
+
+    <script src="admin.js"></script>
+  </body>
+</html>

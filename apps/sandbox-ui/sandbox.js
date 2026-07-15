@@ -545,6 +545,7 @@ const appState = {
     health: ""
   },
   policyCatalog: null,
+  policyPackUploadDraft: null,
   policyFilters: {
     search: "",
     section: "",
@@ -605,6 +606,20 @@ async function setupApi(path, options = {}) {
 function setupPost(path, payload = {}) {
   return setupApi(path, {
     method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+function setupPatch(path, payload = {}) {
+  return setupApi(path, {
+    method: "PATCH",
+    body: JSON.stringify(payload)
+  });
+}
+
+function setupDelete(path, payload = {}) {
+  return setupApi(path, {
+    method: "DELETE",
     body: JSON.stringify(payload)
   });
 }
@@ -2217,6 +2232,24 @@ function renderSettings() {
     ["Pilot intake", config.pilot_intake_mode || "unknown", "Trial/managed intake records"]
   ].map((row) => row.map((cell) => escapeHtml(cell))));
 
+  const deployment = config.deployment || {};
+  const deploymentStatus = el("#settingsDeploymentStatus");
+  if (deploymentStatus) {
+    deploymentStatus.textContent = deployment.platform || "unknown";
+    deploymentStatus.className = `state-chip ${deployment.platform ? "ok" : "warn"}`;
+  }
+  renderRows("#settingsDeploymentTable", ["Setting", "Value", "Meaning"], [
+    ["Runtime", deployment.runtime || "unknown", "Process style such as container, function, or Python process."],
+    ["Platform", deployment.platform || "unknown", "Local process, Docker, Kubernetes, AKS/EKS/GKE, or operator-defined platform."],
+    ["Orchestrator", deployment.orchestrator || "none", "Docker Desktop, Kubernetes, AKS, or another scheduler."],
+    ["Environment", deployment.environment || "local", "Local, trial, managed, enterprise, staging, or production."],
+    ["Install target", deployment.install_target || "community", "Community, Trial, Managed, or Enterprise Subscription."],
+    ["Containerized", deployment.containerized ? "yes" : "no", "Detected by the runtime or configured by the operator."],
+    ["Kubernetes", deployment.kubernetes ? "yes" : "no", "Detected from Kubernetes service environment variables."],
+    ["Namespace", deployment.namespace || "not reported", "Kubernetes namespace when available."],
+    ["Host / pod", deployment.pod_name || deployment.hostname || "not reported", "Runtime host identity exposed for diagnostics."]
+  ].map((row) => row.map((cell) => escapeHtml(cell))));
+
   const diagnostics = el("#settingsDiagnosticsOutput");
   if (diagnostics) diagnostics.textContent = prettyJson(buildSettingsDiagnostics());
 }
@@ -2376,6 +2409,120 @@ async function runPolicySimulation() {
       status.className = "state-chip danger";
     }
     output.textContent = prettyJson({ status: "failed", request: payload, message: error.message });
+  }
+}
+
+async function runPolicyChangePlan() {
+  const form = el("#policyChangeForm");
+  const status = el("#policyChangeStatus");
+  const output = el("#policyChangeOutput");
+  if (!form || !output) return;
+  const data = new FormData(form);
+  const operation = String(data.get("operation") || "add");
+  const policyPack = String(data.get("policy_pack") || "cavra-ai-agent-baseline").trim();
+  const section = String(data.get("section") || "commands").trim();
+  const action = String(data.get("action") || "block").trim();
+  const indexValue = String(data.get("index") || "").trim();
+  const payload = {
+    operation,
+    policy_pack: policyPack,
+    section,
+    action,
+    value: String(data.get("value") || "").trim(),
+  };
+  if (indexValue) payload.index = Number(indexValue);
+  if (status) {
+    status.textContent = "planning";
+    status.className = "state-chip warn";
+  }
+  output.textContent = "Building policy change plan...";
+  try {
+    const entryId = `${encodeURIComponent(section)}:${encodeURIComponent(action)}:${encodeURIComponent(indexValue || "0")}`;
+    let result;
+    if (operation === "add") {
+      result = await setupPost("/policy-action-catalog", payload);
+    } else if (operation === "update") {
+      result = await setupPatch(`/policy-action-catalog/${entryId}`, payload);
+    } else {
+      result = await setupDelete(`/policy-action-catalog/${entryId}`, payload);
+    }
+    if (status) {
+      status.textContent = "planned";
+      status.className = "state-chip ok";
+    }
+    output.textContent = prettyJson(result);
+    await refreshApplicationState();
+  } catch (error) {
+    if (status) {
+      status.textContent = "failed";
+      status.className = "state-chip danger";
+    }
+    output.textContent = prettyJson({ status: "failed", request: payload, message: error.message });
+  }
+}
+
+function policyPackUploadFormPayload(content, filename) {
+  const form = el("#policyPackUploadForm");
+  const data = new FormData(form);
+  return {
+    filename,
+    content,
+    requested_by: String(data.get("requested_by") || "local-operator").trim(),
+    approver_group: String(data.get("approver_group") || "Platform Security").trim(),
+    repository: String(data.get("repository") || "policy-catalog").trim(),
+  };
+}
+
+async function readPolicyPackUploadFile() {
+  const input = el("#policyPackFileInput");
+  const file = input?.files?.[0];
+  if (!file) throw new Error("Select a YAML, YML, or JSON policy pack file first.");
+  const content = await file.text();
+  return { filename: file.name, content };
+}
+
+async function runPolicyPackUploadAction(action) {
+  const status = el("#policyPackUploadStatus");
+  const output = el("#policyPackUploadOutput");
+  if (!output) return;
+  if (status) {
+    status.textContent = action === "approval" ? "requesting" : "validating";
+    status.className = "state-chip warn";
+  }
+  output.textContent = "Processing policy pack...";
+  try {
+    const { filename, content } = await readPolicyPackUploadFile();
+    const payload = policyPackUploadFormPayload(content, filename);
+    const upload = await setupPost("/policy-packs/upload", payload);
+    appState.policyPackUploadDraft = upload.draft?.policy_pack || null;
+    const draftValid = upload.draft?.valid === true;
+    let result = upload;
+    if (action === "plan" || action === "approval") {
+      result = await setupPost("/policy-packs/publish-plan", appState.policyPackUploadDraft || {});
+    }
+    if (action === "approval") {
+      if (!draftValid) {
+        throw new Error("Policy pack draft is not valid. Fix validation errors before requesting approval.");
+      }
+      result = await setupPost("/policy-packs/publish-request", {
+        draft: appState.policyPackUploadDraft,
+        requested_by: payload.requested_by,
+        approver_group: payload.approver_group,
+        repository: payload.repository,
+      });
+    }
+    if (status) {
+      status.textContent = draftValid ? action === "approval" ? "approval requested" : "ready" : "invalid";
+      status.className = `state-chip ${draftValid ? "ok" : "danger"}`;
+    }
+    output.textContent = prettyJson(result);
+    await refreshApplicationState();
+  } catch (error) {
+    if (status) {
+      status.textContent = "failed";
+      status.className = "state-chip danger";
+    }
+    output.textContent = prettyJson({ status: "failed", action, message: error.message });
   }
 }
 
@@ -3705,6 +3852,13 @@ function wireEvents() {
     event.preventDefault();
     await runPolicySimulation();
   });
+  el("#policyChangeForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await runPolicyChangePlan();
+  });
+  el("#validatePolicyPackUpload")?.addEventListener("click", async () => runPolicyPackUploadAction("validate"));
+  el("#planPolicyPackUpload")?.addEventListener("click", async () => runPolicyPackUploadAction("plan"));
+  el("#requestPolicyPackApproval")?.addEventListener("click", async () => runPolicyPackUploadAction("approval"));
   el("#approvalSearch")?.addEventListener("input", (event) => {
     appState.approvalFilters.search = event.target.value;
     renderApprovals();

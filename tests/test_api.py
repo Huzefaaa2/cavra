@@ -1865,6 +1865,107 @@ def test_api_policy_pack_publish_requires_approved_digest_bound_approval(monkeyp
     assert config["endpoints"]["policy_pack_publish"] == "/policy-packs/publish"
 
 
+def test_api_policy_pack_upload_validates_yaml_and_reports_deployment_context(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_DEPLOYMENT_PLATFORM", "docker")
+    monkeypatch.setenv("CAVRA_DEPLOYMENT_RUNTIME", "container")
+    monkeypatch.setenv("CAVRA_DEPLOYMENT_ENVIRONMENT", "local")
+    monkeypatch.setenv("CAVRA_INSTALL_TARGET", "community")
+    monkeypatch.setenv("CAVRA_ORCHESTRATOR", "docker_desktop")
+    client = TestClient(create_app())
+
+    upload = client.post(
+        "/policy-packs/upload",
+        json={
+            "filename": "cavra-enterprise-cloud-iam-prod.yaml",
+            "content": """
+metadata:
+  id: cavra-enterprise-cloud-iam-prod
+  title: Enterprise Cloud IAM Production
+  description: Production IAM guardrails for enterprise tenants.
+  version: 2026.07
+commands:
+  block:
+    - terraform apply -auto-approve
+""",
+        },
+    )
+    config = client.get("/console/config").json()
+
+    assert upload.status_code == 200
+    assert upload.json()["schema_version"] == "cavra.policy_pack.upload.v1"
+    assert upload.json()["draft"]["valid"] is True
+    assert upload.json()["draft"]["policy_pack"]["metadata"]["id"] == "cavra-enterprise-cloud-iam-prod"
+    assert config["deployment"]["platform"] == "docker"
+    assert config["deployment"]["runtime"] == "container"
+    assert config["deployment"]["orchestrator"] == "docker_desktop"
+
+
+def test_api_admin_console_is_disabled_by_default(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CAVRA_ADMIN_ENABLED", raising=False)
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    client = TestClient(create_app())
+
+    config = client.get("/console/config").json()
+    status = client.get("/admin/status")
+
+    assert config["admin_enabled"] is False
+    assert status.status_code == 404
+    assert status.json()["detail"] == "admin console is disabled"
+
+
+def test_api_admin_console_workflows_when_enabled(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("CAVRA_ADMIN_ENABLED", "true")
+    monkeypatch.setenv("CAVRA_ADMIN_DEFAULT_ACTOR", "ops-admin")
+    monkeypatch.setenv("CAVRA_EVIDENCE_METADATA_STORE", str(tmp_path / "metadata.json"))
+    client = TestClient(create_app())
+
+    status = client.get("/admin/status")
+    upload = client.post(
+        "/admin/policy-packs/upload",
+        json={
+            "filename": "admin-pack.yaml",
+            "content": """
+metadata:
+  id: cavra-admin-pack
+  title: Admin Console Pack
+  description: Validates admin-console policy pack upload.
+  version: 2026.07
+commands:
+  block:
+    - terraform destroy -auto-approve
+""",
+        },
+    )
+    publish_plan = client.post("/admin/policy-packs/publish-plan", json={"draft": upload.json()["draft"]})
+    retention = client.post(
+        "/admin/retention-plan",
+        json={"retention_days": 365, "classification": "community-admin", "legal_hold": True},
+    )
+    backup_plan = client.post("/admin/backups/plan", json={"output_dir": str(tmp_path / "backup"), "include_missing": True})
+    backup_rejected = client.post("/admin/backups/run", json={"output_dir": str(tmp_path / "backup")})
+    backup_run = client.post(
+        "/admin/backups/run",
+        json={"output_dir": str(tmp_path / "backup"), "confirm": "BACKUP", "include_missing": True},
+    )
+
+    assert status.status_code == 200
+    assert status.json()["admin_enabled"] is True
+    assert status.json()["actor"]["actor"] == "ops-admin"
+    assert upload.status_code == 200
+    assert upload.json()["actor"]["actor"] == "ops-admin"
+    assert upload.json()["draft"]["valid"] is True
+    assert publish_plan.status_code == 200
+    assert publish_plan.json()["valid"] is True
+    assert retention.status_code == 200
+    assert retention.json()["plan"]["legal_hold"] is True
+    assert backup_plan.status_code == 200
+    assert len(backup_plan.json()["would_backup"]) == backup_plan.json()["store_status"]["total"]
+    assert backup_rejected.status_code == 400
+    assert backup_rejected.json()["detail"] == "confirm must be BACKUP"
+    assert backup_run.status_code == 200
+    assert (tmp_path / "backup" / "manifest.json").exists()
+
+
 def test_api_deployment_production_readiness(monkeypatch, tmp_path) -> None:
     monkeypatch.setenv("CAVRA_CORS_ORIGINS", "https://console.example")
     monkeypatch.setenv("CAVRA_EVIDENCE_ARTIFACT_ROOT", str(tmp_path / "artifacts"))

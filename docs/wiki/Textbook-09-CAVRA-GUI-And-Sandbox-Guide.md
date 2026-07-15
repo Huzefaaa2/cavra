@@ -2,6 +2,20 @@
 
 The CAVRA sandbox GUI is the fastest way to see the product. It is a static-hostable interface that demonstrates runtime decisions, evidence, approvals, registry views, AISPM posture, report center flows, trial readiness, and operating packets.
 
+## Admin Console Boundary
+
+CAVRA also includes a separate Admin Console for deployment administrators. It is
+not the public sandbox. The Admin Console is served from `apps/admin-console`,
+uses `/admin/*` API endpoints, and is disabled unless the API is started with
+`CAVRA_ADMIN_ENABLED=true`.
+
+Use it for deployment context, production readiness, persistent store inventory,
+backup planning, retention planning, and policy-pack lifecycle administration.
+For Docker Desktop testing, `docker compose up -d --build` serves it at
+`http://127.0.0.1:5174`.
+
+Reference: [CAVRA Admin Console](../admin-console.md).
+
 Run it locally:
 
 ```bash

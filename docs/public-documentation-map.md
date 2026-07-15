@@ -25,6 +25,7 @@ development notes, and release-verification artifacts.
 | GitHub-style CLI manual pages | [`docs/cli-manual/README.md`](cli-manual/README.md) |
 | API overview | [`docs/wiki/API.md`](wiki/API.md) |
 | Sandbox and GUI | [`docs/wiki/Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md`](wiki/Textbook-09-CAVRA-GUI-And-Sandbox-Guide.md) |
+| Admin Console | [`docs/admin-console.md`](admin-console.md) |
 | Policy authoring | [`docs/policy-authoring.md`](policy-authoring.md) |
 | Evidence and attestations | [`docs/wiki/Textbook-11-Policies-Approvals-Evidence-And-Attestations.md`](wiki/Textbook-11-Policies-Approvals-Evidence-And-Attestations.md) |
 | AISPM | [`docs/wiki/Textbook-10-AISPM-Guide.md`](wiki/Textbook-10-AISPM-Guide.md) |

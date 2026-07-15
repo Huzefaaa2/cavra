@@ -37,6 +37,7 @@
 - [Development And Testing Archive](Development-And-Testing-Artifacts)
 - [Enterprise Contract Reference Archive](Enterprise-Contract-Reference-Archive)
 - [Kubernetes Deployment](Kubernetes-Deployment)
+- [Admin Console](Admin-Console)
 - [Unified Enterprise Status Report](CAVRA-Unified-Enterprise-Status-Report)
 - [Managed Enterprise Live Validation](Managed-Enterprise-Live-Validation-Plan)
 - [Managed Enterprise Cutover Runbook](Managed-Enterprise-Cutover-Runbook)

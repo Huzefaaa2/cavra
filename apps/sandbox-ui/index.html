@@ -666,6 +666,94 @@
             </form>
             <pre id="policySimulatorOutput" class="operator-report-preview">Run a simulation to see the decision, rule, severity, rationale, and evidence reference.</pre>
           </section>
+          <section class="operator-panel policy-authoring-panel">
+            <div class="operator-panel-heading">
+              <div>
+                <h2>Policy Action Change Planner</h2>
+                <p>Add, update, or delete governed actions through a reviewable plan. CAVRA does not write policy files until the policy-pack approval and publish flow succeeds.</p>
+              </div>
+              <span id="policyChangeStatus" class="state-chip neutral">idle</span>
+            </div>
+            <form id="policyChangeForm" class="policy-authoring-form">
+              <label>
+                Operation
+                <select name="operation">
+                  <option value="add">Add action</option>
+                  <option value="update">Update action</option>
+                  <option value="delete">Delete action</option>
+                </select>
+              </label>
+              <label>
+                Policy pack
+                <input name="policy_pack" value="cavra-ai-agent-baseline">
+              </label>
+              <label>
+                Section
+                <select name="section">
+                  <option value="commands">commands</option>
+                  <option value="filesystem">filesystem</option>
+                  <option value="git">git</option>
+                  <option value="mcp">mcp</option>
+                  <option value="approvals">approvals</option>
+                  <option value="evidence">evidence</option>
+                  <option value="compliance">compliance</option>
+                </select>
+              </label>
+              <label>
+                Action bucket
+                <select name="action">
+                  <option value="block">block</option>
+                  <option value="require_approval">require_approval</option>
+                  <option value="allow">allow</option>
+                  <option value="trusted_servers">trusted_servers</option>
+                  <option value="required">required</option>
+                </select>
+              </label>
+              <label>
+                Existing index
+                <input name="index" type="number" min="0" placeholder="Required for update/delete">
+              </label>
+              <label>
+                Value
+                <input name="value" value="terraform destroy -auto-approve">
+              </label>
+              <button type="submit">Plan Policy Change</button>
+            </form>
+            <pre id="policyChangeOutput" class="operator-report-preview">Create a plan to append, update, or remove a policy action.</pre>
+          </section>
+          <section class="operator-panel policy-authoring-panel">
+            <div class="operator-panel-heading">
+              <div>
+                <h2>Policy Pack Upload And Approval</h2>
+                <p>Upload Community or Enterprise policy pack YAML/JSON, validate the draft, generate a publish plan, and create an approval-bound publish request.</p>
+              </div>
+              <span id="policyPackUploadStatus" class="state-chip neutral">idle</span>
+            </div>
+            <form id="policyPackUploadForm" class="policy-pack-upload-form">
+              <label>
+                Policy pack file
+                <input id="policyPackFileInput" name="policy_pack_file" type="file" accept=".yaml,.yml,.json">
+              </label>
+              <label>
+                Requested by
+                <input name="requested_by" value="local-operator">
+              </label>
+              <label>
+                Approver group
+                <input name="approver_group" value="Platform Security">
+              </label>
+              <label>
+                Repository
+                <input name="repository" value="policy-catalog">
+              </label>
+              <div class="approval-action-row">
+                <button type="button" id="validatePolicyPackUpload">Validate Upload</button>
+                <button type="button" id="planPolicyPackUpload">Generate Publish Plan</button>
+                <button type="button" id="requestPolicyPackApproval">Request Approval</button>
+              </div>
+            </form>
+            <pre id="policyPackUploadOutput" class="operator-report-preview">Upload a YAML or JSON policy pack to validate it before requesting approval.</pre>
+          </section>
           <div id="policyExplorer" class="policy-grid"></div>
         </section>
 
@@ -1169,6 +1257,15 @@
                 </div>
                 <div id="settingsStoreTable" class="operator-table-shell"></div>
               </article>
+              <article class="settings-subpanel">
+                <div class="operator-panel-heading">
+                  <h2>Deployment Context</h2>
+                  <span id="settingsDeploymentStatus" class="state-chip neutral">pending</span>
+                </div>
+                <div id="settingsDeploymentTable" class="operator-table-shell"></div>
+              </article>
+            </div>
+            <div class="settings-workstation-grid">
               <article class="settings-subpanel">
                 <div class="operator-panel-heading">
                   <h2>Diagnostics Snapshot</h2>

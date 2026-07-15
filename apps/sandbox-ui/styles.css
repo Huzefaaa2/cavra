@@ -571,7 +571,9 @@ kbd {
   border-color: color-mix(in srgb, var(--success) 42%, var(--line));
 }
 .policy-workbench-toolbar,
-.policy-simulator-form {
+.policy-simulator-form,
+.policy-authoring-form,
+.policy-pack-upload-form {
   display: grid;
   grid-template-columns: minmax(240px, 1.5fr) minmax(180px, .8fr) minmax(180px, .8fr);
   gap: 12px;
@@ -581,8 +583,16 @@ kbd {
 .policy-simulator-form {
   grid-template-columns: minmax(180px, .7fr) minmax(260px, 1.2fr) minmax(220px, 1fr) auto;
 }
+.policy-authoring-form {
+  grid-template-columns: minmax(150px, .7fr) minmax(220px, 1fr) minmax(160px, .7fr) minmax(180px, .8fr) minmax(130px, .5fr) minmax(260px, 1.2fr) auto;
+}
+.policy-pack-upload-form {
+  grid-template-columns: minmax(260px, 1.3fr) minmax(180px, .8fr) minmax(180px, .8fr) minmax(180px, .8fr);
+}
 .policy-workbench-toolbar label,
-.policy-simulator-form label {
+.policy-simulator-form label,
+.policy-authoring-form label,
+.policy-pack-upload-form label {
   display: grid;
   gap: 6px;
   min-width: 0;
@@ -594,7 +604,13 @@ kbd {
 .policy-workbench-toolbar select,
 .policy-simulator-form input,
 .policy-simulator-form select,
-.policy-simulator-form button {
+.policy-simulator-form button,
+.policy-authoring-form input,
+.policy-authoring-form select,
+.policy-authoring-form button,
+.policy-pack-upload-form input,
+.policy-pack-upload-form select,
+.policy-pack-upload-form button {
   min-height: 42px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -602,13 +618,16 @@ kbd {
   color: var(--text);
   background: var(--panel-strong);
 }
-.policy-simulator-form button {
+.policy-simulator-form button,
+.policy-authoring-form button,
+.policy-pack-upload-form button {
   border-color: color-mix(in srgb, var(--brand) 48%, var(--line));
   color: #05130f;
   background: var(--brand);
   font-weight: 950;
 }
-.policy-simulator-panel {
+.policy-simulator-panel,
+.policy-authoring-panel {
   margin-top: 16px;
 }
 .approval-workbench-toolbar {
@@ -2531,7 +2550,8 @@ p { color: var(--muted); line-height: 1.58; }
   .setup-smtp-form, .setup-live-results, .operator-status-strip,
   .operator-metric-grid, .operator-empty-state, .report-filter-bar,
   .settings-grid, .policy-catalog-summary-grid, .policy-workbench-toolbar,
-  .policy-simulator-form, .aispm-workstation-grid, .aispm-freshness-grid,
+  .policy-simulator-form, .policy-authoring-form, .policy-pack-upload-form,
+  .aispm-workstation-grid, .aispm-freshness-grid,
   .approval-workbench-toolbar, .approval-summary-grid, .approval-workstation-grid,
   .approval-action-row, .evidence-workbench-toolbar, .evidence-summary-grid,
   .evidence-workstation-grid, .registry-summary-grid, .registry-workstation-grid,

@@ -144,8 +144,12 @@ docker compose up -d --build
 ```
 
 Compose starts the API at `http://127.0.0.1:8000`, starts the sandbox at
-`http://127.0.0.1:5173`, injects the local sandbox API config, and allows both
+`http://127.0.0.1:5173`, starts the Admin Console at
+`http://127.0.0.1:5174`, injects the local browser API configs, and allows both
 `localhost` and `127.0.0.1` browser origins through API CORS for local testing.
+The Admin Console is operator-only and uses guarded `/admin/*` endpoints that
+are disabled unless `CAVRA_ADMIN_ENABLED=true`. Guide:
+[CAVRA Admin Console](docs/admin-console.md).
 
 ![CAVRA GUI dashboard](docs/wiki/assets/textbook/gui-dashboard.png)
 

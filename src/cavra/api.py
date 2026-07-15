@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import os
+import json
+import socket
 from pathlib import Path
 from typing import Optional
 from urllib.parse import quote
+
+import yaml
 
 from cavra import __version__
 from cavra.activity import ActivityStore, SQLiteActivityStore, utc_now
@@ -231,7 +235,7 @@ from cavra.integrations import (
     load_connector_config,
 )
 from cavra.inventory import InventoryStore, SQLiteInventoryStore
-from cavra.operations import build_persistent_api_retention_plan, persistent_api_store_status
+from cavra.operations import backup_persistent_api_stores, build_persistent_api_retention_plan, persistent_api_store_status
 from cavra.policy_authoring import (
     build_policy_pack_draft,
     build_policy_pack_publish_plan,
@@ -520,6 +524,8 @@ def create_app():
             "evidence_artifacts": "configured" if evidence_artifact_root else "disabled",
             "registry_store": str(registry_store.path),
             "cors_origins": cors_origins,
+            "deployment": _deployment_context(),
+            "admin_enabled": _admin_enabled(),
             "endpoints": {
                 "saas_control_plane_contract": "/saas/control-plane/contract",
                 "saas_operating_automation": "/saas/operating-automation",
@@ -738,6 +744,12 @@ def create_app():
                 "policy_rollout_apply_change": "/policy-rollouts/apply-change",
                 "policy_rollout_detail": "/policy-rollouts/{rollout_id}/detail",
                 "console_security_boundary": "/console/security-boundary",
+                "admin_status": "/admin/status",
+                "admin_readiness": "/admin/readiness",
+                "admin_stores": "/admin/stores",
+                "admin_backup_plan": "/admin/backups/plan",
+                "admin_backup_run": "/admin/backups/run",
+                "admin_retention_plan": "/admin/retention-plan",
                 "operations_stores": "/operations/stores",
                 "operations_retention_plan": "/operations/retention-plan",
                 "integrations": "/integrations",
@@ -861,6 +873,37 @@ def create_app():
             return build_policy_pack_draft(payload)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/policy-packs/upload")
+    def policy_pack_upload(payload: dict) -> dict:
+        filename = str(payload.get("filename", "policy-pack.yaml"))
+        content = str(payload.get("content", ""))
+        if not content.strip():
+            raise HTTPException(status_code=400, detail="policy pack content is required")
+        try:
+            if filename.endswith(".json"):
+                parsed = json.loads(content)
+            else:
+                parsed = yaml.safe_load(content)
+            if not isinstance(parsed, dict):
+                raise ValueError("policy pack content must parse to an object")
+            draft_payload = {
+                "metadata": parsed.get("metadata", {}),
+                **{key: value for key, value in parsed.items() if key != "metadata"},
+            }
+            draft = build_policy_pack_draft(draft_payload)
+        except (ValueError, yaml.YAMLError, TypeError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return {
+            "schema_version": "cavra.policy_pack.upload.v1",
+            "product": "CAVRA",
+            "filename": filename,
+            "draft": draft,
+            "operator_notes": [
+                "Upload parses and validates the policy pack only; it does not publish or write files.",
+                "Use publish-request to create an approval-bound publish request before writing the pack.",
+            ],
+        }
 
     @app.post("/policy-packs/publish-plan")
     def policy_pack_publish_plan(payload: dict) -> dict:
@@ -1524,6 +1567,165 @@ def create_app():
             go_rollback_drill_history=go_rollback_drill_history_report(),
             go_rollback_drill_schedule=go_rollback_drill_schedule_report(),
         )
+
+    @app.get("/admin/status")
+    def admin_status(authorization: Optional[str] = Header(default=None)) -> dict[str, object]:
+        actor_context = _admin_actor_context(
+            {},
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        return {
+            "schema_version": "cavra.admin.status.v1",
+            "product": "CAVRA",
+            "admin_enabled": True,
+            "actor": _public_actor_context(actor_context),
+            "deployment": _deployment_context(),
+            "security_boundary": _console_security_boundary(
+                oidc_configured=bool(oidc_config),
+                rbac_configured=bool(rbac_rules),
+                cors_origins=cors_origins,
+            ),
+            "stores": persistent_api_store_status(),
+            "capabilities": {
+                "readiness": "/admin/readiness",
+                "stores": "/admin/stores",
+                "backup_plan": "/admin/backups/plan",
+                "backup_run": "/admin/backups/run",
+                "retention_plan": "/admin/retention-plan",
+                "policy_pack_catalog": "/admin/policy-packs",
+                "policy_pack_upload": "/admin/policy-packs/upload",
+                "policy_pack_publish_plan": "/admin/policy-packs/publish-plan",
+                "policy_pack_publish_request": "/admin/policy-packs/publish-request",
+                "policy_pack_publish": "/admin/policy-packs/publish",
+            },
+        }
+
+    @app.get("/admin/readiness")
+    def admin_readiness(authorization: Optional[str] = Header(default=None)) -> dict[str, object]:
+        _admin_actor_context({}, authorization=authorization, oidc_config=oidc_config, rbac_rules=rbac_rules)
+        return deployment_production_readiness()
+
+    @app.get("/admin/stores")
+    def admin_stores(authorization: Optional[str] = Header(default=None)) -> dict[str, object]:
+        _admin_actor_context({}, authorization=authorization, oidc_config=oidc_config, rbac_rules=rbac_rules)
+        return persistent_api_store_status()
+
+    @app.post("/admin/backups/plan")
+    def admin_backup_plan(payload: dict, authorization: Optional[str] = Header(default=None)) -> dict[str, object]:
+        actor_context = _admin_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        output_dir = Path(str(payload.get("output_dir") or ".cavra/admin/backups/latest"))
+        store_status = persistent_api_store_status()
+        return {
+            "schema_version": "cavra.admin.backup_plan.v1",
+            "product": "CAVRA",
+            "actor": _public_actor_context(actor_context),
+            "output_dir": str(output_dir),
+            "include_missing": bool(payload.get("include_missing", False)),
+            "store_status": store_status,
+            "would_backup": [
+                item
+                for item in store_status.get("items", [])
+                if item.get("exists") or bool(payload.get("include_missing", False))
+            ],
+            "operator_notes": [
+                "This endpoint plans a backup only and does not copy store files.",
+                "Call /admin/backups/run with confirm=BACKUP to create a local backup artifact.",
+            ],
+        }
+
+    @app.post("/admin/backups/run")
+    def admin_backup_run(payload: dict, authorization: Optional[str] = Header(default=None)) -> dict[str, object]:
+        actor_context = _admin_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        if payload.get("confirm") != "BACKUP":
+            raise HTTPException(status_code=400, detail="confirm must be BACKUP")
+        output_dir = Path(str(payload.get("output_dir") or ".cavra/admin/backups/latest"))
+        manifest = backup_persistent_api_stores(output_dir, include_missing=bool(payload.get("include_missing", False)))
+        return {
+            "schema_version": "cavra.admin.backup_run.v1",
+            "product": "CAVRA",
+            "actor": _public_actor_context(actor_context),
+            "output_dir": str(output_dir),
+            "manifest": manifest,
+        }
+
+    @app.post("/admin/retention-plan")
+    def admin_retention_plan(payload: dict, authorization: Optional[str] = Header(default=None)) -> dict[str, object]:
+        actor_context = _admin_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        try:
+            plan = build_persistent_api_retention_plan(
+                retention_days=int(payload.get("retention_days", 2555)),
+                classification=str(payload.get("classification", "regulated-sdlc")),
+                legal_hold=bool(payload.get("legal_hold", False)),
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return {
+            "schema_version": "cavra.admin.retention_plan.v1",
+            "product": "CAVRA",
+            "actor": _public_actor_context(actor_context),
+            "plan": plan,
+        }
+
+    @app.get("/admin/policy-packs")
+    def admin_policy_pack_catalog(authorization: Optional[str] = Header(default=None)) -> dict[str, object]:
+        _admin_actor_context({}, authorization=authorization, oidc_config=oidc_config, rbac_rules=rbac_rules)
+        return policy_pack_catalog()
+
+    @app.post("/admin/policy-packs/upload")
+    def admin_policy_pack_upload(payload: dict, authorization: Optional[str] = Header(default=None)) -> dict[str, object]:
+        actor_context = _admin_actor_context(
+            payload,
+            authorization=authorization,
+            oidc_config=oidc_config,
+            rbac_rules=rbac_rules,
+        )
+        result = policy_pack_upload(payload)
+        result["actor"] = _public_actor_context(actor_context)
+        return result
+
+    @app.post("/admin/policy-packs/publish-plan")
+    def admin_policy_pack_publish_plan(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        _admin_actor_context(payload, authorization=authorization, oidc_config=oidc_config, rbac_rules=rbac_rules)
+        if isinstance(payload.get("draft"), dict) and isinstance(payload["draft"].get("policy_pack"), dict):
+            payload = {**payload, "draft": payload["draft"]["policy_pack"]}
+        return policy_pack_publish_plan(payload)
+
+    @app.post("/admin/policy-packs/publish-request")
+    def admin_policy_pack_publish_request(
+        payload: dict,
+        authorization: Optional[str] = Header(default=None),
+    ) -> dict[str, object]:
+        _admin_actor_context(payload, authorization=authorization, oidc_config=oidc_config, rbac_rules=rbac_rules)
+        if isinstance(payload.get("draft"), dict) and isinstance(payload["draft"].get("policy_pack"), dict):
+            payload = {**payload, "draft": payload["draft"]["policy_pack"]}
+        return policy_pack_publish_request(payload, authorization=authorization)
+
+    @app.post("/admin/policy-packs/publish")
+    def admin_policy_pack_publish(payload: dict, authorization: Optional[str] = Header(default=None)) -> dict[str, object]:
+        _admin_actor_context(payload, authorization=authorization, oidc_config=oidc_config, rbac_rules=rbac_rules)
+        if isinstance(payload.get("draft"), dict) and isinstance(payload["draft"].get("policy_pack"), dict):
+            payload = {**payload, "draft": payload["draft"]["policy_pack"]}
+        return policy_pack_publish(payload, authorization=authorization)
 
     @app.get("/runtime/go-pilot/readiness")
     def runtime_go_pilot_readiness() -> dict[str, object]:
@@ -7061,6 +7263,67 @@ def create_app():
 
 def _csv_env(name: str) -> list[str]:
     return [item.strip() for item in os.environ.get(name, "").split(",") if item.strip()]
+
+
+def _deployment_context() -> dict[str, object]:
+    containerized = Path("/.dockerenv").exists()
+    kubernetes = bool(os.environ.get("KUBERNETES_SERVICE_HOST"))
+    platform = os.environ.get("CAVRA_DEPLOYMENT_PLATFORM")
+    if not platform:
+        if kubernetes:
+            platform = "kubernetes"
+        elif containerized:
+            platform = "docker"
+        else:
+            platform = "local_process"
+    runtime = os.environ.get("CAVRA_DEPLOYMENT_RUNTIME")
+    if not runtime:
+        runtime = "container" if containerized else "python_process"
+    return {
+        "runtime": runtime,
+        "platform": platform,
+        "environment": os.environ.get("CAVRA_DEPLOYMENT_ENVIRONMENT", "local"),
+        "install_target": os.environ.get("CAVRA_INSTALL_TARGET", "community"),
+        "orchestrator": os.environ.get("CAVRA_ORCHESTRATOR", "docker_desktop" if containerized and not kubernetes else "kubernetes" if kubernetes else "none"),
+        "containerized": containerized,
+        "kubernetes": kubernetes,
+        "hostname": socket.gethostname(),
+        "namespace": os.environ.get("POD_NAMESPACE") or os.environ.get("CAVRA_KUBERNETES_NAMESPACE", ""),
+        "pod_name": os.environ.get("HOSTNAME", ""),
+    }
+
+
+def _admin_enabled() -> bool:
+    return os.environ.get("CAVRA_ADMIN_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _admin_require_enabled() -> None:
+    if not _admin_enabled():
+        raise HTTPException(status_code=404, detail="admin console is disabled")
+
+
+def _admin_actor_context(
+    payload: dict | None = None,
+    *,
+    authorization: str | None,
+    oidc_config: dict[str, object] | None,
+    rbac_rules: dict[str, object] | None,
+) -> dict[str, object]:
+    _admin_require_enabled()
+    actor_context = _console_mutation_actor_context(
+        payload or {},
+        authorization=authorization,
+        oidc_config=oidc_config,
+        rbac_rules=rbac_rules,
+    )
+    if actor_context:
+        return actor_context
+    return {
+        "actor": (payload or {}).get("actor") or os.environ.get("CAVRA_ADMIN_DEFAULT_ACTOR", "local-admin"),
+        "groups": ["local-admin"],
+        "permissions": ["admin:*"],
+        "mode": "local",
+    }
 
 
 def _sandbox_run_or_404(runs: dict[str, dict], run_id: str) -> dict:
