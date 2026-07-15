@@ -148,6 +148,20 @@ Use Docker when you want repeatable local startup or a shared demo environment.
 Use the Python editable install when you are modifying policy, CLI, or source
 behavior.
 
+For a connected Docker Desktop run of the API and GUI together:
+
+```bash
+docker compose up -d --build
+curl -fsS http://127.0.0.1:8000/health
+open http://127.0.0.1:5173
+```
+
+`docker-compose.yml` starts the FastAPI service on `127.0.0.1:8000`, serves the
+sandbox GUI on `127.0.0.1:5173`, mounts `docker/sandbox-ui.config.local.js` over
+the public `config.js`, and configures API CORS for both `localhost:5173` and
+`127.0.0.1:5173`. The public checked-in sandbox config remains blank so hosted
+public demos do not point at a local machine by default.
+
 | Container path | Use it for | First validation |
 | --- | --- | --- |
 | CLI image from `docker/Dockerfile.community` | Validating the CAVRA package, CLI help, policy commands, and local evidence commands inside Docker. | `docker run --rm cavra-community-cli:local --help` |

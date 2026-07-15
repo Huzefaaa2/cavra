@@ -137,6 +137,16 @@ python -m http.server 5173 --directory apps/sandbox-ui
 
 Open `http://localhost:5173`.
 
+To run the API and sandbox GUI together on Docker Desktop, use compose:
+
+```bash
+docker compose up -d --build
+```
+
+Compose starts the API at `http://127.0.0.1:8000`, starts the sandbox at
+`http://127.0.0.1:5173`, injects the local sandbox API config, and allows both
+`localhost` and `127.0.0.1` browser origins through API CORS for local testing.
+
 ![CAVRA GUI dashboard](docs/wiki/assets/textbook/gui-dashboard.png)
 
 ## Community Deployment On Azure

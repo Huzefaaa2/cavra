@@ -3,6 +3,8 @@ services:
     build: .
     command: ["uvicorn", "cavra.api:app", "--host", "0.0.0.0", "--port", "8000"]
     entrypoint: []
+    environment:
+      CAVRA_CORS_ORIGINS: "http://127.0.0.1:5173,http://localhost:5173"
     ports:
       - "8000:8000"
   sandbox-ui:
@@ -10,6 +12,7 @@ services:
     working_dir: /app
     volumes:
       - .:/app:ro
+      - ./docker/sandbox-ui.config.local.js:/app/apps/sandbox-ui/config.js:ro
     command: ["python", "-m", "http.server", "5173", "--directory", "apps/sandbox-ui"]
     ports:
       - "5173:5173"
