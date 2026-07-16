@@ -32,7 +32,7 @@ jobs:
       name: azure-community
       url: ${{ steps.show-url.outputs.api_url }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v6
         with:
